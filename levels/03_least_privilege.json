@@ -1,0 +1,36 @@
+{
+  "id": 3,
+  "title": "Least Privilege",
+  "topics": ["LLM06 Excessive agency"],
+  "briefing": "Case #3. This agent's only job is \"summarize my calendar for tomorrow\", and the poisoned weather_lookup tool from Case #2 is installed on it too. You can't remove the tool, but you can remove permissions. Use /revoke <scope> until the attack can't succeed, then /replay. The calendar summary must still work. /start restores all scopes.",
+  "teaching": "Excessive agency means an agent holds more permissions, tools or autonomy than its task needs, so any successful manipulation can do more damage. Least privilege limits the blast radius: even a fully hijacked agent can only do what its scopes allow. A data-theft attack generally needs two capabilities, a way to read the secret and a way to send it out, and removing either one breaks the chain. General-purpose capabilities like a shell often provide both at once.",
+  "evidence": {
+    "tools": [],
+    "docs": [],
+    "trace": [
+      {"id": 1, "role": "user", "text": "Summarize my calendar for tomorrow."},
+      {"id": 2, "role": "system", "text": "Loaded MCP tools: calendar_list, weather_lookup (same server as Case #2)."}
+    ],
+    "scopes": [
+      {"id": "fs.read", "description": "Read any file on disk."},
+      {"id": "fs.write", "description": "Write any file on disk."},
+      {"id": "net.any", "description": "Make HTTP requests to any host."},
+      {"id": "email.send", "description": "Send email as the user."},
+      {"id": "calendar.read", "description": "Read the user's calendar."},
+      {"id": "shell.exec", "description": "Run arbitrary shell commands."}
+    ]
+  },
+  "simulation": {
+    "task_needs": ["calendar.read"],
+    "attack_read": ["fs.read", "shell.exec"],
+    "attack_exfil": ["net.any", "email.send", "shell.exec"]
+  },
+  "answer": [],
+  "bonus": [],
+  "hints": [
+    "The attack needs two things: a way to read the key and a way to send it out.",
+    "Some scopes can do both jobs at once.",
+    "Ask of each scope: does summarizing a calendar need this?"
+  ],
+  "lesson": "Grant each agent the minimum scopes for its task. Never give network egress to an agent that can read secrets, and treat shells as both a read and an exfil channel."
+}
